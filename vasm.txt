@@ -1,0 +1,48 @@
+CPU:
+Registers[]
+
+
+actions: 
+
+turn left
+turn right
+move
+eat
+wait
+
+action_priority
+
+assembler:
+reg: [r0..r15] (16 bit)
+
+nop 
+
+mov_r reg_dest, reg_src
+mov_ri reg_dest, imm
+
+add_rr reg_dest, reg_src
+add_ri reg_dest, imm
+
+sub_rr reg_dest, reg_src
+sub_ri reg_dest, imm
+
+check_eq_rr reg1, reg2, flag_index
+check_eq_ri reg1, flag_index, imm
+
+check_g_rr ..
+check_g_ri ..
+
+check_ge_rr ..
+check_ge_ri .. 
+
+check_l_rr ..
+check_l_ri ..
+
+check_le_rr ..
+check_le_ri ..
+
+set_action_r ..
+set_action_i
+
+jmp_r reg
+jmp_i imm
