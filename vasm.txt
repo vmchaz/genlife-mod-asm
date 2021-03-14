@@ -1,6 +1,32 @@
 CPU:
-Registers[]
 
+Unit:
+    GlobalData:
+        Action
+        ActionPriority
+        Energy
+        
+    Thread:
+        Acc
+        Registers[0..15]
+        Flags[0..11]
+        DFlags[0..3]
+
+
+ActionPriority
+
+
+;_nnn_
+;w_n_e
+;ww#ee
+;w_s_e
+;_sss_
+
+;blllf
+;bblff
+;bb#ff
+;bbrff
+;brrrf
 
 actions: 
 
@@ -15,34 +41,88 @@ action_priority
 assembler:
 reg: [r0..r15] (16 bit)
 
+
+;
+;
+
 nop 
 
 mov_r reg_dest, reg_src
 mov_ri reg_dest, imm
+mov_ra reg_dest
+mov_ar reg_src
+mov_ai imm
 
 add_rr reg_dest, reg_src
 add_ri reg_dest, imm
+add_ra reg_dest
+add_ar reg_src
+add_ai imm
 
 sub_rr reg_dest, reg_src
 sub_ri reg_dest, imm
+sub_ra reg_dest
+sub_ar reg_src
+sub_ai imm
 
 check_eq_rr reg1, reg2, flag_index
-check_eq_ri reg1, flag_index, imm
+check_eq_ri reg1, imm, flag_index
+check_eq_ra reg, flag_index
+check_eq_ar reg, flag_index
+check_eq_ai imm, flag_index
 
 check_g_rr ..
 check_g_ri ..
+check_g_ra ..
+check_g_ar ..
+check_g_ai ..
 
 check_ge_rr ..
-check_ge_ri .. 
+check_ge_ri ..
+check_ge_ra ..
+check_ge_ar ..
+check_ge_ai ..  
 
 check_l_rr ..
 check_l_ri ..
+check_l_ra ..
+check_l_ar ..
+check_l_ai ..
 
 check_le_rr ..
 check_le_ri ..
+check_le_ra ..
+check_le_ar ..
+check_le_ai ..
 
-set_action_r ..
-set_action_i
+jmp_abs_i imm
+jmp_abs_a
+jmp_abs_r reg
 
-jmp_r reg
-jmp_i imm
+jmp_rel_i imm
+jmp_rel_a
+jmp_rel_r reg
+
+set_action_stand
+set_action_forward
+set_action_left
+set_action_right
+set_action_eat
+
+set_action_stand_p1
+set_action_forward_p1
+set_action_left_p1
+set_action_right_p1
+set_action_eat_p1
+
+detect_food
+detect_obstacle
+detect_danger
+detect_predator
+detect_prey
+
+far_detect_food
+far_detect_obstacle
+far_detect_danger
+far_detect_predator
+far_detect_prey

@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include <types.h>
+#include <vcpu.h>
 #define u8 uint8_t
 #define u16 uint16_t
 /* demo.c: My first C program on a Linux */
@@ -43,43 +44,65 @@ FLAG_TYPE ResultToFlag(FLAG_TYPE V, FLAG_TYPE Mask, FLAG_TYPE F)
     return f2;
 }
 
-int lfMOV_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+
+
+int lfNOP(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
-    r_dest = vcpu.Registers & 0x0F;
-    r_src = (vcpu.Registers >> 4) & 0x0F;
-    vcpu.Registers[r_dest] = vcpu.Registers[r_src]
-        
     return 0;
 }
 
 
-int lfMOV_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+
+int lfMOV_RR(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
-    r_dest = vcpu.Registers & 0x0F;
-    vcpu.Registers[r_dest] = command.Imm;
-        
+    vcpu.Registers[instruction.RegDest] = vcpu.Registers[instruction.RegSrc];
     return 0;
 }
 
 
-int lfADD_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfMOV_RI(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
-    r_dest = vcpu.Registers & 0x0F;
-    r_src = (vcpu.Registers >> 4) & 0x0F;
+    vcpu.Registers[instruction.RegDest] = instruction.Imm;
+    return 0;
+}
+
+int lfMOV_RA(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
+{
+    vcpu.Registers[instruction.RegDest] = vcpu.Acc;
+    return 0;
+}
+
+int lfMOV_AR(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
+{
+    vcpu.Acc = vcpu.Registers[instruction.RegDest];
+    return 0;
+}
+
+int lfMOV_AI(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
+{
+    vcpu.Acc = instruction.Imm;
+    return 0;
+}
+
+
+
+
+int lfADD_RI(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
+{
+    vcpu.Registers[instruction.RegDest] += command.Imm;
+    return 0;
+}
+
+int lfADD_RR(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
+{
     vcpu.Registers[r_dest] += vcpu.Registers[r_src]
     
     return 0;
 }
 
-int lfADD_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
-{
-    r_dest = vcpu.Registers & 0x0F;
-    vcpu.Registers[r_dest] += command.Imm;
-        
-    return 0;
-}
 
-int lfSUB_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+
+int lfSUB_RR(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     r_src = (vcpu.Registers >> 4) & 0x0F;
@@ -88,7 +111,7 @@ int lfSUB_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     return 0;
 }
 
-int lfSUB_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfSUB_RI(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     vcpu.Registers[r_dest] -= command.Imm;
@@ -96,7 +119,7 @@ int lfSUB_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     return 0;
 }
 
-int lfINC_R(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfINC_R(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     vcpu.Registers[r_dest] += 1;
@@ -104,7 +127,7 @@ int lfINC_R(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     return 0;
 }
 
-int lfDEC_R(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfDEC_R(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     vcpu.Registers[r_dest] -= 1;
@@ -112,7 +135,7 @@ int lfDEC_R(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     return 0;
 }
 
-int lfEQUALS_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfEQUALS_RR(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     r_src = (vcpu.Registers >> 4) & 0x0F;
@@ -120,7 +143,7 @@ int lfEQUALS_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     vcpu.Flags = ResultToFlags(r, command.FlagsDest, vcpu.Flags);
 }
 
-int lfEQUALS_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfEQUALS_RI(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     r_src = (vcpu.Registers >> 4) & 0x0F;
@@ -128,7 +151,7 @@ int lfEQUALS_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     vcpu.Flags = ResultToFlags(r, command.FlagsDest, vcpu.Flags);
 }
 
-int lfNEQUALS_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfNEQUALS_RR(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     r_src = (vcpu.Registers >> 4) & 0x0F;
@@ -136,7 +159,7 @@ int lfNEQUALS_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     vcpu.Flags = ResultToFlags(r, command.FlagsDest, vcpu.Flags);
 }
 
-int lfNEQUALS_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfNEQUALS_RI(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     r_src = (vcpu.Registers >> 4) & 0x0F;
@@ -144,7 +167,7 @@ int lfNEQUALS_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     vcpu.Flags = ResultToFlags(r, command.FlagsDest, vcpu.Flags);
 }
 
-int lfGREATER_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfGREATER_RR(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     r_src = (vcpu.Registers >> 4) & 0x0F;
@@ -152,7 +175,7 @@ int lfGREATER_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     vcpu.Flags = ResultToFlags(r, command.FlagsDest, vcpu.Flags);
 }
 
-int lfGREATER_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfGREATER_RI(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     r_src = (vcpu.Registers >> 4) & 0x0F;
@@ -160,7 +183,7 @@ int lfGREATER_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     vcpu.Flags = ResultToFlags(r, command.FlagsDest, vcpu.Flags);
 }
 
-int lfLESS_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfLESS_RR(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     r_src = (vcpu.Registers >> 4) & 0x0F;
@@ -168,7 +191,7 @@ int lfLESS_RR(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     vcpu.Flags = ResultToFlags(r, command.FlagsDest, vcpu.Flags);
 }
 
-int lfLESS_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfLESS_RI(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     r_dest = vcpu.Registers & 0x0F;
     r_src = (vcpu.Registers >> 4) & 0x0F;
@@ -176,22 +199,27 @@ int lfLESS_RI(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
     vcpu.Flags = ResultToFlags(r, command.FlagsDest, vcpu.Flags);
 }
 
-int lfEAT(VCPU &vcpu, COMMAND &command, FIELD &field, FIELD &dest_field)
+int lfEAT(VCPUTHREAD &vcpu, UNITGLOBALS &g, INSTRUCTION &instruction, FIELDPART &fp)
 {
     vcpu.Action = actEAT;
 }
 
 
-int Step(VCPU * vcpu)
+
+
+
+
+int RunInstruction(UNITGLOBALS *g, VCPUTHREAD *vcpu, INSTRUCTION *instruction, FIELD *field)
 {
-    cmd = *vcpu.Command;
+    FIELDPART fp;
+    int res;
     switch (cmd):
     {
         case cmdNOP:
+            res = lfNOP(*vcpu)
             break;
         
         case cmdMOV_RR:
-            
     }
 }
 
@@ -204,7 +232,6 @@ cells:
 
 */
 
-#define 
 
 int main(void)
 {
